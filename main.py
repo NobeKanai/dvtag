@@ -18,11 +18,11 @@ def start_tagging(dir_path: Path):
 
 def main():
     parser = argparse.ArgumentParser(description='Doujin Voice Tagging Tool')
-    parser.add_argument('dir_path', type=str, help='A required directory path')
+    parser.add_argument('dir_path', type=str, help='a required directory path')
     parser.add_argument('--w2f',
                         default=False,
                         action=argparse.BooleanOptionalAction,
-                        help='Converting wav file to flac [LOSELESS]')
+                        help='converting wav file to flac [LOSELESS]')
 
     args = parser.parse_args()
     path = Path(args.dir_path).absolute()
