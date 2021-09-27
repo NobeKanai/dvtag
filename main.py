@@ -20,7 +20,7 @@ def main():
     parser.add_argument('dir_path', type=str, help='A required directory path')
 
     args = parser.parse_args()
-    start_tagging(Path(args.dir_path))
+    start_tagging(Path(args.dir_path).absolute())
 
 
 if __name__ == '__main__':
