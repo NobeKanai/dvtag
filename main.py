@@ -5,15 +5,17 @@ from dvtag import get_rjid, tag
 from w2f import wav_to_flac
 
 
-def start_tagging(dir_path: Path):
+def start(dir_path: Path, w2f: bool):
     if get_rjid(dir_path.name):
+        if w2f:
+            wav_to_flac(dir_path)
         tag(dir_path)
         return
 
     for dir in dir_path.iterdir():
         if not dir_path.is_dir():
             continue
-        start_tagging(dir)
+        start(dir, w2f)
 
 
 def main():
@@ -22,14 +24,12 @@ def main():
     parser.add_argument('--w2f',
                         default=False,
                         action=argparse.BooleanOptionalAction,
-                        help='converting wav file to flac [LOSELESS]')
+                        help='transcode wav file to flac [LOSELESS]')
 
     args = parser.parse_args()
     path = Path(args.dir_path).absolute()
 
-    if args.w2f:
-        wav_to_flac(path)
-    start_tagging(path)
+    start(path, args.w2f)
 
 
 if __name__ == '__main__':
