@@ -14,16 +14,17 @@ pip install dvtag
 
 ```
 $ dvtag -h
-usage: dvtag [-h] [--w2f | --no-w2f] dir_path
+usage: dvtag [-h] [-w2f] [-w2m] dirpath
 
-Doujin Voice Tagging Tool
+Doujin Voice Tagging Tool (tagging in place)
 
 positional arguments:
-  dir_path         a required directory path
+  dirpath     a required directory path
 
 optional arguments:
-  -h, --help       show this help message and exit
-  --w2f, --no-w2f  converting wav file to flac [LOSELESS] (default: False)
+  -h, --help  show this help message and exit
+  -w2f        transcode wav file to flac [LOSELESS] (default: False)
+  -w2m        transcode wav file to mp3 (default: False)
 ```
 
 You must ensure that every doujin voice folder name contains a specific id format(in dlsite) - like `RJ123123`, `rj123123 xxx`, `xxxx RJ123123`
@@ -39,7 +40,7 @@ You must ensure that every doujin voice folder name contains a specific id forma
 ├── PINK PUNK PRO
 │   └── RJ321217
 │
-├── plug in.東京
+├── plug in.XX
 │   ├── [RJ310972][XXXxx][plug in.XX]
 │   └── RJ341111
 │
@@ -54,8 +55,8 @@ Then tagging with command `dvtag`:
 dvtag /path/to/your/library
 ```
 
-If you have `wav` audio files and you want to convert these all to `flac`, run with option `--w2f`. For example
+If you have `wav` audio files and you want to convert these all to `flac`/`mp3`, run with option `-w2f`/`-w2m`. For example
 
 ```bash
-dvtag --w2f /path/to/your/library
+dvtag -w2f /path/to/your/library
 ```

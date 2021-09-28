@@ -10,7 +10,7 @@ from mutagen.flac import Picture
 from mutagen.id3 import PictureType
 from PIL import Image
 
-re_rjid = re.compile(r"RJ[0-9]{6}", flags=re.IGNORECASE)
+rjid_pat = re.compile(r"RJ[0-9]{6}", flags=re.IGNORECASE)
 
 
 def _split(audio_files: List[Path]) -> List[List[Path]]:
@@ -55,7 +55,7 @@ def _split(audio_files: List[Path]) -> List[List[Path]]:
     return paths
 
 
-def get_audio_files(
+def get_audio_paths_list(
         basepath: Path) -> Tuple[List[List[Path]], List[List[Path]]]:
     """get audio files(Path) from base_path recursively
 
@@ -63,30 +63,30 @@ def get_audio_files(
         base_path (Path): base path
 
     Returns:
-        Tuple[List[List[Path]], List[List[Path]]]: flac_file_lists, mp3_file_lists
+        Tuple[List[List[Path]], List[List[Path]]]: flac_paths_list, mp3_paths_list
     """
-    flac_file_lists = []
-    mp3_file_lists = []
+    flac_paths_list = []
+    mp3_paths_list = []
 
     for dirpath, _, filenames in os.walk(basepath):
-        mp3_files = []
-        flac_files = []
+        mp3_paths = []
+        flac_paths = []
         for filename in filenames:
             if filename.endswith(".flac"):
-                flac_files.append(Path(os.path.join(dirpath, filename)))
+                flac_paths.append(Path(os.path.join(dirpath, filename)))
             elif filename.endswith(".mp3"):
-                mp3_files.append(Path(os.path.join(dirpath, filename)))
+                mp3_paths.append(Path(os.path.join(dirpath, filename)))
 
-        if len(flac_files):
-            flac_file_lists.extend(_split(flac_files))
-        if len(mp3_files):
-            mp3_file_lists.extend(_split(mp3_files))
+        if len(flac_paths):
+            flac_paths_list.extend(_split(flac_paths))
+        if len(mp3_paths):
+            mp3_paths_list.extend(_split(mp3_paths))
 
-    return flac_file_lists, mp3_file_lists
+    return flac_paths_list, mp3_paths_list
 
 
 def get_rjid(name: str) -> Optional[str]:
-    """get rjid from name
+    """get rjid(or say, rj code) from a string
 
     Args:
         name (str): a string
@@ -94,7 +94,7 @@ def get_rjid(name: str) -> Optional[str]:
     Returns:
         Optional[str]: return a string(upper case, like RJ123123) if found, otherwise return None
     """
-    m = re_rjid.search(name)
+    m = rjid_pat.search(name)
     if m:
         return m.group().upper()
     return None
@@ -105,7 +105,7 @@ def get_image(url: str) -> Image.Image:
     return Image.open(cover_path)
 
 
-def get_png_bytes_arr(im: Image.Image) -> BytesIO:
+def get_png_byte_arr(im: Image.Image) -> BytesIO:
     img_byte_arr = io.BytesIO()
     im.save(img_byte_arr, "png")
     return img_byte_arr
@@ -124,7 +124,7 @@ mode_to_bpp = {
 }
 
 
-def get_picture(img_byte_arr: BytesIO, width: int, height: int,
+def get_picture(png_byte_arr: BytesIO, width: int, height: int,
                 mode: str) -> Picture:
     picture = Picture()
     picture.mime = "image/png"
@@ -133,6 +133,6 @@ def get_picture(img_byte_arr: BytesIO, width: int, height: int,
     picture.type = PictureType.COVER_FRONT
 
     picture.depth = mode_to_bpp[mode]
-    picture.data = img_byte_arr.getvalue()
+    picture.data = png_byte_arr.getvalue()
 
     return picture

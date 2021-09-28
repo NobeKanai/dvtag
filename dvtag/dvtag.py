@@ -1,3 +1,4 @@
+import logging
 from io import BytesIO
 from pathlib import Path
 from typing import List, Optional
@@ -8,21 +9,21 @@ from mutagen.id3 import (APIC, ID3, TALB, TDRC, TPE1, TPE2, TPOS, TRCK,
 from natsort import os_sorted
 from PIL.Image import Image
 
-from dvtag.utils import (get_audio_files, get_image, get_picture,
-                         get_png_bytes_arr, get_rjid)
+from dvtag.utils import (get_audio_paths_list, get_image, get_picture,
+                         get_png_byte_arr, get_rjid)
 
-from .doujin_voice import DoujinVoice
+from .doujinvoice import DoujinVoice
 
 
-def tag_mp3s(files: List[Path], dv: DoujinVoice, png_bytes_arr: BytesIO,
-             disc: Optional[int]):
+def tag_mp3s(mp3_paths: List[Path], dv: DoujinVoice, png_bytes_arr: BytesIO,
+             disc_number: Optional[int]):
     tags = ID3()
 
     tags.add(TALB(text=[dv.work_name]))
-    tags.add(TPE2(text=[dv.cicle]))
+    tags.add(TPE2(text=[dv.circle]))
     tags.add(TDRC(text=[dv.sale_date]))
-    if disc:
-        tags.add(TPOS(text=[str(disc)]))
+    if disc_number:
+        tags.add(TPOS(text=[str(disc_number)]))
     if dv.seiyus:
         tags.add(TPE1(text=["/".join(dv.seiyus)]))
     tags.add(
@@ -30,16 +31,19 @@ def tag_mp3s(files: List[Path], dv: DoujinVoice, png_bytes_arr: BytesIO,
              desc="Front Cover",
              data=png_bytes_arr.getvalue()))
 
-    for trck, file in enumerate(os_sorted(files), start=1):
+    for trck, p in enumerate(os_sorted(mp3_paths), start=1):
         tags.add(TRCK(text=[str(trck)]))
 
         try:
-            if ID3(file) != tags:
-                tags.save(file, v1=0)
-                print(f"tagged <track: {trck}, disc: {disc}> '{file.name}'")
+            if ID3(p) != tags:
+                tags.save(p, v1=0)
+                logging.info(
+                    f"Tagged <track: {trck}, disc: {disc_number}> to '{p.name}'"
+                )
         except ID3NoHeaderError:
-            tags.save(file, v1=0)
-            print(f"tagged <track: {trck}, disc: {disc}> to '{file.name}'")
+            tags.save(p, v1=0)
+            logging.info(
+                f"Tagged <track: {trck}, disc: {disc_number}> to '{p.name}'")
         tags.delall("TRCK")
 
 
@@ -56,44 +60,45 @@ def tag_flacs(files: List[Path], dv: DoujinVoice, image: Image,
         tags["album"] = [dv.work_name]
         tags["tracknumber"] = [str(trck)]
         tags["artist"] = dv.seiyus
-        tags["albumartist"] = [dv.cicle]
+        tags["albumartist"] = [dv.circle]
         tags["date"] = [dv.sale_date]
         if disc:
             tags["discnumber"] = [str(disc)]
 
         if tags != FLAC(file):
             tags.save(file)
-            print(f"tagged <track: {trck}, disc: {disc}> to '{file.name}'")
+            logging.info(
+                f"Tagged <track: {trck}, disc: {disc}> to '{file.name}'")
 
 
 def tag(basepath: Path):
     rjid = get_rjid(basepath.name)
     dv = DoujinVoice(rjid)
-    print(f"[{rjid}] Ready to tag")
-    print(f"ALBUM:\t{dv.work_name}")
-    print(f"SEIYU:\t{','.join(dv.seiyus)}")
-    print(f"CICLE:\t{dv.cicle}")
-    print(f"DATE:\t{dv.sale_date}")
+    logging.info(f"[{rjid}] Ready to tag...")
+    logging.info(f"Circle: {dv.circle}")
+    logging.info(f"Album:  {dv.work_name}")
+    logging.info(f"Seiyu:  {','.join(dv.seiyus)}")
+    logging.info(f"Date:   {dv.sale_date}")
 
     image = get_image(dv.work_image)
-    img_bytes_arr = get_png_bytes_arr(image)
+    png_bytes_arr = get_png_byte_arr(image)
 
-    flac_file_lists, mp3_file_lists = get_audio_files(basepath)
+    flac_paths_list, mp3_paths_list = get_audio_paths_list(basepath)
 
     set_disc = False
     disc = None
-    if len(flac_file_lists) + len(mp3_file_lists) > 1:
+    if len(flac_paths_list) + len(mp3_paths_list) > 1:
         set_disc = True
         disc = 1
 
-    for flac_files in flac_file_lists:
-        tag_flacs(flac_files, dv, image, img_bytes_arr, disc)
+    for flac_files in flac_paths_list:
+        tag_flacs(flac_files, dv, image, png_bytes_arr, disc)
         if set_disc:
             disc += 1
 
-    for mp3_files in mp3_file_lists:
-        tag_mp3s(mp3_files, dv, img_bytes_arr, disc)
+    for mp3_files in mp3_paths_list:
+        tag_mp3s(mp3_files, dv, png_bytes_arr, disc)
         if set_disc:
             disc += 1
 
-    print(f"[{rjid}] Done.")
+    logging.info(f"[{rjid}] Done.")

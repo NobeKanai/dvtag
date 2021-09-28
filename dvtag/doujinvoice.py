@@ -1,10 +1,9 @@
+import logging
 import re
 from html import unescape
 from urllib.parse import quote
 
 import requests
-
-BASE_URL = "https://www.dlsite.com/maniax/product/info/ajax?product_id="
 
 
 class DoujinVoice():
@@ -16,18 +15,15 @@ class DoujinVoice():
         self.work_name = ""
         self.work_image = ""
         self.rate_average_2dp = 0.0
-
-        self._init_metadata()
-
         self.seiyus = []
-        self.cicle = ""
+        self.circle = ""
         self.sale_date = ""
 
-        self._init_another_metadata()
-
+        self._init_metadata()
+        self._supple_metadata()
         self._get_cover()
 
-    def _init_another_metadata(self):
+    def _supple_metadata(self):
         html = requests.get(self.url).text
 
         try:
@@ -38,15 +34,16 @@ class DoujinVoice():
             for seiyu_html in re.finditer(pattern, seiyu_list_html):
                 self.seiyus.append(unescape(seiyu_html.group(1)))
         except AttributeError as e:
-            print("Error when get artists from {}: {}".format(self.rjid, e))
+            logging.error("Cannot get artists from {}: {}".format(
+                self.rjid, e))
 
         try:
             pattern = r"<th>サークル名</th>[\s\S]*?<a[\s\S]*?>(.*?)<"
-            cicle = re.search(pattern, html).group(1)
-            self.cicle = unescape(cicle)
+            circle = re.search(pattern, html).group(1)
+            self.circle = unescape(circle)
 
         except AttributeError as e:
-            print("Error when get cicle from {}: {}".format(self.rjid, e))
+            logging.error("Cannot get circle from {}: {}".format(self.rjid, e))
 
         # get sale date
         pattern = r'www\.dlsite\.com/maniax/new/=/year/([0-9]{4})/mon/([0-9]{2})/day/([0-9]{2})/'
@@ -56,7 +53,9 @@ class DoujinVoice():
                                                match.group(3))
 
     def _init_metadata(self):
-        rsp = requests.get(BASE_URL + self.rjid)
+        rsp = requests.get(
+            "https://www.dlsite.com/maniax/product/info/ajax?product_id=" +
+            self.rjid)
 
         try:
             json_data = rsp.json()[self.rjid]
@@ -70,12 +69,11 @@ class DoujinVoice():
             self.work_image = "https:" + json_data["work_image"]
 
         except ValueError as e:
-            print(
-                "Error When convert a response to json or convert dl_count to int, RJ ID:",
-                self.rjid)
-            print(e)
+            logging.error(
+                f"Cannot convert a response to json or convert convert dl_count to int with RJ-ID {self.rjid}: {e}",
+            )
         except KeyError as e:
-            print(e)
+            logging.error(e)
 
     def _get_cover(self):
         """
@@ -97,4 +95,5 @@ class DoujinVoice():
 
             self.work_image = re.search(r'albumart="(.*?)"', detail).group(1)
         except Exception as e:
-            print(e)
+            logging.warning(
+                f"Cannot fetch cover from chobit for {self.rjid}: {e}")
