@@ -19,8 +19,8 @@ def start(dirpath: Path, w2f: bool, w2m: bool):
         tag(dirpath)
         return
 
-    for dir in dirpath.iterdir():
-        if not dirpath.is_dir():
+    for file in dirpath.iterdir():
+        if not file.is_dir():
             continue
         start(dir, w2f, w2m)
 
