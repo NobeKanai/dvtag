@@ -8,6 +8,7 @@ from typing import List, Optional, Tuple
 import requests
 from mutagen.flac import Picture
 from mutagen.id3 import PictureType
+from natsort import os_sort_key
 from PIL import Image
 
 rjid_pat = re.compile(r"RJ[0-9]{6}", flags=re.IGNORECASE)
@@ -55,6 +56,22 @@ def _split(audio_files: List[Path]) -> List[List[Path]]:
     return paths
 
 
+def _walk(basepath: Path):
+    dirs = []
+    files = []
+    for file in basepath.iterdir():
+        if file.is_dir():
+            dirs.append(file)
+        else:
+            files.append(file)
+    yield files
+
+    dirs = sorted(dirs, key=lambda d: os_sort_key(d.name))
+    for d in dirs:
+        for f in _walk(d):
+            yield f
+
+
 def get_audio_paths_list(
         basepath: Path) -> Tuple[List[List[Path]], List[List[Path]]]:
     """get audio files(Path) from base_path recursively
@@ -68,14 +85,14 @@ def get_audio_paths_list(
     flac_paths_list = []
     mp3_paths_list = []
 
-    for dirpath, _, filenames in os.walk(basepath):
+    for files in _walk(basepath):
         mp3_paths = []
         flac_paths = []
-        for filename in filenames:
-            if filename.endswith(".flac"):
-                flac_paths.append(Path(os.path.join(dirpath, filename)))
-            elif filename.endswith(".mp3"):
-                mp3_paths.append(Path(os.path.join(dirpath, filename)))
+        for file in files:
+            if file.name.endswith(".flac"):
+                flac_paths.append(file)
+            elif file.name.endswith(".mp3"):
+                mp3_paths.append(file)
 
         if len(flac_paths):
             flac_paths_list.extend(_split(flac_paths))
