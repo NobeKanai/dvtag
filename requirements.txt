@@ -1,8 +1,8 @@
-certifi==2021.5.30
-charset-normalizer==2.0.6
-idna==3.2
+certifi==2021.10.8
+charset-normalizer==2.0.9
+idna==3.3
 mutagen==1.45.1
-natsort==7.1.1
-Pillow==8.3.2
+natsort==8.0.2
+Pillow==8.4.0
 requests==2.26.0
-urllib3==1.26.6
+urllib3==1.26.7
