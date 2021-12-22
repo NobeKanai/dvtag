@@ -1,5 +1,4 @@
 import io
-import os
 import re
 from io import BytesIO
 from pathlib import Path
@@ -35,7 +34,8 @@ def _split(audio_files: List[Path]) -> List[List[Path]]:
     ]  # regex expressions must keep no collision with each other
 
     results = {}
-    paths = [[]]
+    paths = []
+    regular = []
     for audio_file in audio_files:
         matched = False
         for regex_expr in regexes:
@@ -48,7 +48,10 @@ def _split(audio_files: List[Path]) -> List[List[Path]]:
                 break
 
         if not matched:
-            paths[0].append(audio_file)
+            regular.append(audio_file)
+
+    if len(regular):
+        paths.append(regular)
 
     for _, v in results.items():
         paths.append(v)
