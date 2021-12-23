@@ -22,7 +22,7 @@ def start(dirpath: Path, w2f: bool, w2m: bool):
     for file in dirpath.iterdir():
         if not file.is_dir():
             continue
-        start(dir, w2f, w2m)
+        start(file, w2f, w2m)
 
 
 def main():
