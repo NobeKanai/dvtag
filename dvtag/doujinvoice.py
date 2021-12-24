@@ -14,7 +14,6 @@ class DoujinVoice():
         self.url = ""
         self.work_name = ""
         self.work_image = ""
-        self.rate_average_2dp = 0.0
         self.seiyus = []
         self.circle = ""
         self.sale_date = ""
@@ -61,7 +60,6 @@ class DoujinVoice():
             json_data = rsp.json()[self.rjid]
 
             self.dl_count = int(json_data["dl_count"])
-            self.rate_average_2dp = float(json_data["rate_average_2dp"])
             self.url = json_data["down_url"].replace("download/split",
                                                      "work").replace(
                                                          "download", "work")
