@@ -31,7 +31,7 @@ def _split(audio_files: List[Path]) -> List[List[Path]]:
         r'^ASMR_.*',
         r'^.+Bパート',
         r'^番外編',
-    ]  # regex expressions must keep no collision with each other
+    ]  # Regular expressions must keep no collision with each other
 
     results = {}
     paths = []
@@ -77,13 +77,13 @@ def _walk(basepath: Path):
 
 def get_audio_paths_list(
         basepath: Path) -> Tuple[List[List[Path]], List[List[Path]]]:
-    """get audio files(Path) from base_path recursively
+    """get audio files(Path) from basepath recursively
 
     Args:
-        base_path (Path): base path
+        basepath (Path): base path
 
     Returns:
-        Tuple[List[List[Path]], List[List[Path]]]: flac_paths_list, mp3_paths_list
+        Tuple[List[List[Path]], List[List[Path]]]: flac paths list, mp3 paths list
     """
     flac_paths_list = []
     mp3_paths_list = []

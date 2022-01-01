@@ -68,14 +68,14 @@ class DoujinVoice():
 
         except ValueError as e:
             logging.error(
-                f"Cannot convert a response to json or convert convert dl_count to int with RJ-ID {self.rjid}: {e}",
+                f"Cannot convert a response to json or convert dl_count to int with RJ-ID {self.rjid}: {e}",
             )
         except KeyError as e:
             logging.error(e)
 
     def _get_cover(self):
         """
-        try fetch a better cover
+        Try to fetch a better cover
         """
         try:
             search_url = "https://chobit.cc/s/?f_category=vo&q_keyword=" + quote(

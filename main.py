@@ -32,11 +32,11 @@ def main():
     parser.add_argument('-w2f',
                         default=False,
                         action=argparse.BooleanOptionalAction,
-                        help='transcode wav file to flac [LOSELESS]')
+                        help='transcode all wav files to flac [LOSELESS]')
     parser.add_argument('-w2m',
                         default=False,
                         action=argparse.BooleanOptionalAction,
-                        help='transcode wav file to mp3')
+                        help='transcode all wav files to mp3')
 
     args = parser.parse_args()
     path = Path(args.dirpath).absolute()
