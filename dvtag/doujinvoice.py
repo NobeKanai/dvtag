@@ -19,10 +19,10 @@ class DoujinVoice():
         self.sale_date = ""
 
         self._init_metadata()
-        self._supple_metadata()
+        self._add_metadata()
         self._get_cover()
 
-    def _supple_metadata(self):
+    def _add_metadata(self):
         html = requests.get(self.url).text
 
         try:
