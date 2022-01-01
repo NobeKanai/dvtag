@@ -21,10 +21,10 @@ Doujin Voice Tagging Tool (tagging in place)
 positional arguments:
   dirpath     a required directory path
 
-optional arguments:
+options:
   -h, --help  show this help message and exit
-  -w2f        transcode wav file to flac [LOSELESS] (default: False)
-  -w2m        transcode wav file to mp3 (default: False)
+  -w2f        transcode all wav files to flac [LOSELESS] (default: False)
+  -w2m        transcode all wav files to mp3 (default: False)
 ```
 
 You must ensure that every doujin voice folder name contains a specific id format(in dlsite) - like `RJ123123`, `rj123123 xxx`, `xxxx RJ123123`
