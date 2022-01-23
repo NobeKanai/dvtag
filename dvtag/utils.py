@@ -9,6 +9,7 @@ from mutagen.flac import Picture
 from mutagen.id3 import PictureType
 from natsort import os_sort_key
 from PIL import Image
+from requests.adapters import HTTPAdapter
 
 rjid_pat = re.compile(r"RJ[0-9]{6}", flags=re.IGNORECASE)
 
@@ -121,7 +122,7 @@ def get_rjid(name: str) -> Optional[str]:
 
 
 def get_image(url: str) -> Image.Image:
-    cover_path = requests.get(url, stream=True).raw
+    cover_path = create_request_session().get(url, stream=True).raw
     return Image.open(cover_path)
 
 
@@ -156,3 +157,19 @@ def get_picture(png_byte_arr: BytesIO, width: int, height: int,
     picture.data = png_byte_arr.getvalue()
 
     return picture
+
+
+def create_request_session(max_retries=5) -> requests.Session:
+    """Creates a request session that supports retry mechanism
+
+    Args:
+        max_retries (int, optional): Maximum retry times. Defaults to 5.
+
+    Returns:
+        requests.Session: Request session
+    """
+    session = requests.Session()
+    adapter = HTTPAdapter(max_retries=max_retries)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
+    return session

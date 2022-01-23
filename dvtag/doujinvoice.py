@@ -3,7 +3,9 @@ import re
 from html import unescape
 from urllib.parse import quote
 
-import requests
+from dvtag.utils import create_request_session
+
+session = create_request_session()
 
 
 class DoujinVoice():
@@ -23,7 +25,7 @@ class DoujinVoice():
         self._get_cover()
 
     def _add_metadata(self):
-        html = requests.get(self.url).text
+        html = session.get(self.url).text
 
         try:
             pattern = r'<th>声優</th>[\s\S]*?<td>[\s\S]*?(<a[\s\S]*?>[\s\S]*?)</td>'
@@ -52,7 +54,7 @@ class DoujinVoice():
                                                match.group(3))
 
     def _init_metadata(self):
-        rsp = requests.get(
+        rsp = session.get(
             "https://www.dlsite.com/maniax/product/info/ajax?product_id=" +
             self.rjid)
 
@@ -82,14 +84,14 @@ class DoujinVoice():
                 self.work_name)
 
             headers = {'cookie': 'showr18=1'}
-            search_result = requests.get(search_url, headers=headers).text
+            search_result = session.get(search_url, headers=headers).text
 
             href = re.search(r'work-work-name.*?<a.*href=\"(.*?)\"',
                              search_result).group(1)
 
             detail_url = "https://chobit.cc" + href
 
-            detail = requests.get(detail_url, headers=headers).text
+            detail = session.get(detail_url, headers=headers).text
 
             self.work_image = re.search(r'albumart="(.*?)"', detail).group(1)
         except Exception as e:
