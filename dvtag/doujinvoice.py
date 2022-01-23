@@ -77,7 +77,7 @@ class DoujinVoice():
 
     def _get_cover(self):
         """
-        Try to fetch a better cover
+        Tries to fetch a better cover
         """
         try:
             search_url = "https://chobit.cc/s/?f_category=vo&q_keyword=" + quote(

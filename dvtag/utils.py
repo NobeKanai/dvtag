@@ -78,7 +78,7 @@ def _walk(basepath: Path):
 
 def get_audio_paths_list(
         basepath: Path) -> Tuple[List[List[Path]], List[List[Path]]]:
-    """get audio files(Path) from basepath recursively
+    """Gets audio files(Path) from basepath recursively
 
     Args:
         basepath (Path): base path
@@ -107,13 +107,13 @@ def get_audio_paths_list(
 
 
 def get_rjid(name: str) -> Optional[str]:
-    """get rjid(or say, rj code) from a string
+    """Gets rjid(or rather, rj code) from a given string
 
     Args:
-        name (str): a string
+        name (str): A string
 
     Returns:
-        Optional[str]: return a string(upper case, like RJ123123) if found, otherwise return None
+        Optional[str]: Returns a string(upper case, like RJ123123) if found, otherwise return None
     """
     m = rjid_pat.search(name)
     if m:
