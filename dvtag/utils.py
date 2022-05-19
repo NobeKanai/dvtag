@@ -126,23 +126,21 @@ def get_image(url: str) -> Image.Image:
     return Image.open(cover_path)
 
 
-def get_png_byte_arr(im: Image.Image) -> BytesIO:
-    img_byte_arr = io.BytesIO()
-    im.save(img_byte_arr, "png")
-    return img_byte_arr
-
-
-mode_to_bpp = {
+png_modes_to_bpp = {
     '1': 1,
     'L': 8,
     'P': 8,
     'RGB': 24,
     'RGBA': 32,
-    'CMYK': 32,
-    'YCbCr': 24,
     'I': 32,
-    'F': 32
 }
+
+def get_png_byte_arr(im: Image.Image) -> BytesIO:
+    if im.mode not in png_modes_to_bpp:
+        im = im.convert("RGB" if im.info.get("transparency") is None else "RGBA")
+    img_byte_arr = io.BytesIO()
+    im.save(img_byte_arr, "png")
+    return img_byte_arr
 
 
 def get_picture(png_byte_arr: BytesIO, width: int, height: int,
@@ -153,7 +151,7 @@ def get_picture(png_byte_arr: BytesIO, width: int, height: int,
     picture.height = height
     picture.type = PictureType.COVER_FRONT
 
-    picture.depth = mode_to_bpp[mode]
+    picture.depth = png_modes_to_bpp[mode]
     picture.data = png_byte_arr.getvalue()
 
     return picture
