@@ -17,8 +17,11 @@ class DoujinVoice():
         self.work_name = ""
         self.work_image = ""
         self.seiyus = []
+        self.illustrators = []
         self.circle = ""
         self.sale_date = ""
+        self.genres = []
+        self.age_restriction = ""
 
         self._init_metadata()
         self._add_metadata()
@@ -39,12 +42,42 @@ class DoujinVoice():
                 self.rjid, e))
 
         try:
+            pattern = r'<th>イラスト</th>[\s\S]*?<td>[\s\S]*?(<a[\s\S]*?>[\s\S]*?)</td>'
+            illustrator_list_html = re.search(pattern, html).group(1)
+
+            pattern = r'<a[\s\S]*?>(.*?)<'
+            for illustrator_html in re.finditer(pattern, illustrator_list_html):
+                self.illustrators.append(unescape(illustrator_html.group(1)))
+        except AttributeError as e:
+            logging.error("Cannot get illustrators from {}: {}".format(
+                self.rjid, e))
+
+        try:
+            pattern = r'<th>ジャンル</th>[\s\S]*?<td>[\s\S]*?(<a[\s\S]*?>[\s\S]*?)</td>'
+            genre_list_html = re.search(pattern, html).group(1)
+
+            pattern = r'<a[\s\S]*?>(.*?)<'
+            for genre_html in re.finditer(pattern, genre_list_html):
+                self.genres.append(unescape(genre_html.group(1)))
+        except AttributeError as e:
+            logging.error("Cannot get genres from {}: {}".format(
+                self.rjid, e))
+
+        try:
             pattern = r"<th>サークル名</th>[\s\S]*?<a[\s\S]*?>(.*?)<"
             circle = re.search(pattern, html).group(1)
             self.circle = unescape(circle)
 
         except AttributeError as e:
             logging.error("Cannot get circle from {}: {}".format(self.rjid, e))
+
+        try:
+            pattern = r"<div class=\"work_genre\">[\s\S]*?<span class=\"icon_[\s\S+]*?\"[\s\S]*?>(.*?)<"
+            age_restriction = re.search(pattern, html).group(1)
+            self.age_restriction = unescape(age_restriction)
+
+        except AttributeError as e:
+            logging.error("Cannot get rating from {}: {}".format(self.rjid, e))
 
         # get sale date
         pattern = r'www\.dlsite\.com/maniax/new/=/year/([0-9]{4})/mon/([0-9]{2})/day/([0-9]{2})/'
