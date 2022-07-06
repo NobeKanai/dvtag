@@ -28,7 +28,7 @@ def transcode_wav(dir: Path, format: str = "flac", options: List[str] = []):
                 stderr=subprocess.STDOUT)
             if returncode == 0:
                 logging.info(
-                    f"Transcode {filename_wav} successfully, delete this source file"
+                    f"Transcoded {filename_wav} successfully, deleting this source file"
                 )
                 os.remove(file_wav)
             else:
@@ -38,7 +38,7 @@ def transcode_wav(dir: Path, format: str = "flac", options: List[str] = []):
 
 
 def wav_to_flac(dir: Path):
-    transcode_wav(dir)
+    transcode_wav(dir, "flac", ["-compression_level", "12"])
 
 
 def wav_to_mp3(dir: Path):

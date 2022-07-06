@@ -32,6 +32,7 @@ def _split(audio_files: List[Path]) -> List[List[Path]]:
         r'^ASMR_.*',
         r'^.+Bパート',
         r'^番外編',
+        r'フリートーク',
     ]  # Regular expressions must keep no collision with each other
 
     results = {}
@@ -171,3 +172,27 @@ def create_request_session(max_retries=5) -> requests.Session:
     session.mount("http://", adapter)
     session.mount("https://", adapter)
     return session
+
+def get_track_title(filename: str):
+    regexes = [
+        r'^[Tt]rack[0-9０-９]*[._:：-]?(.*)$',
+        r'^Tr[.]?[0-9０-９]*(.*)$',
+        r'^.*_[Tt]rack[0-9０-９]*[._:：-]?(.*)$',
+        r'^[#]?[0-9０-９]+[._:：-]?(.*)$',
+        r'^[(【][0-9０-９]+[】)][._:：-]?(.*)$',
+        r'^[a-z0-9０-９_-]* *[._:：-] *(.*)$',
+        r'^ *[「『](.*)[』」]$',
+    ]
+
+    basename = Path(filename).stem
+    title = basename
+
+    for regex_expr in regexes:
+        # print(title, regex_expr)
+        title = re.sub(regex_expr, r'\1', title, flags=re.IGNORECASE)
+
+    title = title.strip()
+    if title == "":
+        title = basename
+
+    return title
