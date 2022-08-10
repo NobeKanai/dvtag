@@ -1,14 +1,14 @@
 import io
-import re
 from io import BytesIO
 from pathlib import Path
+import re
 from typing import List, Optional, Tuple
 
-import requests
+from PIL import Image
 from mutagen.flac import Picture
 from mutagen.id3 import PictureType
 from natsort import os_sort_key
-from PIL import Image
+import requests
 from requests.adapters import HTTPAdapter
 
 rjid_pat = re.compile(r"RJ[0-9]{6}", flags=re.IGNORECASE)
@@ -16,22 +16,22 @@ rjid_pat = re.compile(r"RJ[0-9]{6}", flags=re.IGNORECASE)
 
 def _split(audio_files: List[Path]) -> List[List[Path]]:
     regexes = [
-        r'^omake_?.*[0-9]{1,2}.*$',
-        r'^.*ex[0-9]{1,2}.*$',
-        r'^ex_.+$',
-        r'^後日談.*$',
-        r'^おまけ_?[0-9]{0,2}.*$',
-        r'^反転おまけ_?[0-9]{1,2}.*$',
-        r'^反転_?[0-9]{1,2}.*$',
-        r'^20..年?[0-9]{1,2}月配信.*$',
-        r'^.*特典.*$',
-        r'^追加[0-9]{1,2}.*$',
-        r'^opt[0-9]?.*',
-        r'^#[0-9]+(-|ー)B',
-        r'^#[0-9]+(-|ー)C',
-        r'^ASMR_.*',
-        r'^.+Bパート',
-        r'^番外編',
+        r"^omake_?.*[0-9]{1,2}.*$",
+        r"^.*ex[0-9]{1,2}.*$",
+        r"^ex_.+$",
+        r"^後日談.*$",
+        r"^おまけ_?[0-9]{0,2}.*$",
+        r"^反転おまけ_?[0-9]{1,2}.*$",
+        r"^反転_?[0-9]{1,2}.*$",
+        r"^20..年?[0-9]{1,2}月配信.*$",
+        r"^.*特典.*$",
+        r"^追加[0-9]{1,2}.*$",
+        r"^opt[0-9]?.*",
+        r"^#[0-9]+(-|ー)B",
+        r"^#[0-9]+(-|ー)C",
+        r"^ASMR_.*",
+        r"^.+Bパート",
+        r"^番外編",
     ]  # Regular expressions must keep no collision with each other
 
     results = {}
@@ -76,8 +76,7 @@ def _walk(basepath: Path):
             yield f
 
 
-def get_audio_paths_list(
-        basepath: Path) -> Tuple[List[List[Path]], List[List[Path]]]:
+def get_audio_paths_list(basepath: Path) -> Tuple[List[List[Path]], List[List[Path]]]:
     """Gets audio files(Path) from basepath recursively
 
     Args:
@@ -127,13 +126,14 @@ def get_image(url: str) -> Image.Image:
 
 
 png_modes_to_bpp = {
-    '1': 1,
-    'L': 8,
-    'P': 8,
-    'RGB': 24,
-    'RGBA': 32,
-    'I': 32,
+    "1": 1,
+    "L": 8,
+    "P": 8,
+    "RGB": 24,
+    "RGBA": 32,
+    "I": 32,
 }
+
 
 def get_png_byte_arr(im: Image.Image) -> BytesIO:
     if im.mode not in png_modes_to_bpp:
@@ -143,8 +143,7 @@ def get_png_byte_arr(im: Image.Image) -> BytesIO:
     return img_byte_arr
 
 
-def get_picture(png_byte_arr: BytesIO, width: int, height: int,
-                mode: str) -> Picture:
+def get_picture(png_byte_arr: BytesIO, width: int, height: int, mode: str) -> Picture:
     picture = Picture()
     picture.mime = "image/png"
     picture.width = width
