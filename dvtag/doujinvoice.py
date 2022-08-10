@@ -79,7 +79,7 @@ class DoujinVoice:
 
             href = ""
             for work in re.finditer(r"work-work-name.*?<a.*href=\"(.*?)\">(.*?)<", search_result):
-                if unescape(work.group(2)) == self.work_name:
+                if self.work_name.startswith(unescape(work.group(2)).removesuffix("…")):
                     href = work.group(1)
 
             assert href != "", "No matching entry found"
