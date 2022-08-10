@@ -86,11 +86,15 @@ class DoujinVoice():
             headers = {'cookie': 'showr18=1'}
             search_result = session.get(search_url, headers=headers).text
 
-            href = re.search(r'work-work-name.*?<a.*href=\"(.*?)\"',
-                             search_result).group(1)
+            href = ''
+            for work in re.finditer(r'work-work-name.*?<a.*href=\"(.*?)\">(.*?)<',
+                    search_result):
+                if unescape(work.group(2)) == self.work_name:
+                    href = work.group(1)
+
+            assert href != '', "No matching entry found"
 
             detail_url = "https://chobit.cc" + href
-
             detail = session.get(detail_url, headers=headers).text
 
             self.work_image = re.search(r'albumart="(.*?)"', detail).group(1)
