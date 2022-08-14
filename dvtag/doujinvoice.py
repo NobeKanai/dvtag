@@ -1,7 +1,7 @@
 from html import unescape
+import json
 import logging
 import re
-from urllib.parse import quote
 
 from dvtag.utils import create_request_session
 
@@ -72,21 +72,11 @@ class DoujinVoice:
         Tries to fetch a better cover
         """
         try:
-            search_url = "https://chobit.cc/s/?f_category=vo&q_keyword=" + quote(self.work_name)
+            chobit_api = f"https://chobit.cc/api/v1/dlsite/embed?workno={self.rjid}"
 
-            headers = {"cookie": "showr18=1"}
-            search_result = session.get(search_url, headers=headers).text
+            res = json.loads(session.get(chobit_api).text[9:-1])
 
-            href = ""
-            for work in re.finditer(r"work-work-name.*?<a.*href=\"(.*?)\">(.*?)<", search_result):
-                if self.work_name.startswith(unescape(work.group(2)).removesuffix("…")):
-                    href = work.group(1)
+            self.work_image = res["works"][0]["thumb"]
 
-            assert href != "", "No matching entry found"
-
-            detail_url = "https://chobit.cc" + href
-            detail = session.get(detail_url, headers=headers).text
-
-            self.work_image = re.search(r'albumart="(.*?)"', detail).group(1)
         except Exception as e:
             logging.warning(f"Cannot fetch cover from chobit for {self.rjid}: {e}")
