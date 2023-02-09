@@ -1,11 +1,13 @@
 from io import BytesIO
 import logging
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from PIL.Image import Image
+import mutagen
 from mutagen.flac import FLAC
 from mutagen.id3 import APIC, ID3, ID3NoHeaderError, TALB, TDRC, TPE1, TPE2, TPOS, TRCK, TIT2
+from mutagen.mp4 import MP4
 from natsort import os_sorted
 
 from dvtag.utils import (
@@ -68,6 +70,24 @@ def tag_flacs(files: List[Path], dv: DoujinVoice, image: Image, png_bytes_arr: B
             logging.info(f"Tagged <track: {trck}, disc: {disc}> to '{file.name}'")
 
 
+def tag_mp4s(files: List[Path], dv: DoujinVoice, disc: Optional[int]):
+    for trck, file in enumerate(os_sorted(files), start=1):
+        tags = mutagen.File(file, easy=True)
+        
+        tags["album"] = [dv.work_name]
+        tags["tracknumber"] = [str(trck)]
+        tags["title"] = [file.stem]
+        tags["artist"] = dv.seiyus
+        tags["albumartist"] = [dv.circle]
+        tags["date"] = [dv.sale_date]
+        if disc:
+            tags["discnumber"] = [str(disc)]
+
+        if tags != mutagen.File(file, easy=True):
+            tags.save(file)
+            logging.info(f"Tagged <track: {trck}, disc: {disc}> to '{file.name}'")
+
+
 def tag(basepath: Path):
     rjid = get_rjid(basepath.name)
     dv = DoujinVoice(rjid)
@@ -80,22 +100,33 @@ def tag(basepath: Path):
     image = get_image(dv.work_image)
     png_bytes_arr = get_png_byte_arr(image)
 
-    flac_paths_list, mp3_paths_list = get_audio_paths_list(basepath)
+    flac_paths_list, mp3_paths_list, mp4_paths_list = get_audio_paths_list(basepath)
 
-    set_disc = False
-    disc = None
+    set_audioDisc = False
+    set_videoDisc = False
+    audioDisc = None
+    videoDisc = None
     if len(flac_paths_list) + len(mp3_paths_list) > 1:
-        set_disc = True
-        disc = 1
+        set_audioDisc = True
+        audioDisc = 1
+
+    if len(mp4_paths_list) > 1:
+        set_videoDisc = True
+        videoDisc = 1
 
     for flac_files in flac_paths_list:
-        tag_flacs(flac_files, dv, image, png_bytes_arr, disc)
-        if set_disc:
-            disc += 1
+        tag_flacs(flac_files, dv, image, png_bytes_arr, audioDisc)
+        if set_audioDisc:
+            audioDisc += 1
 
     for mp3_files in mp3_paths_list:
-        tag_mp3s(mp3_files, dv, png_bytes_arr, disc)
-        if set_disc:
-            disc += 1
+        tag_mp3s(mp3_files, dv, png_bytes_arr, audioDisc)
+        if set_audioDisc:
+            audioDisc += 1
+
+    for mp4_files in mp4_paths_list:
+        tag_mp4s(mp4_files, dv, videoDisc)
+        if set_videoDisc:
+            videoDisc += 1
 
     logging.info(f"[{rjid}] Done.")

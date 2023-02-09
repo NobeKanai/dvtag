@@ -3,26 +3,28 @@ import logging
 from pathlib import Path
 
 from dvtag import get_rjid, tag
-from utils import wav_to_flac, wav_to_mp3
+from utils import wav_to_flac, wav_to_mp3, avi_to_mp4
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %a %H:%M:%S"
 )
 
 
-def start(dirpath: Path, w2f: bool, w2m: bool):
+def start(dirpath: Path, w2f: bool, w2m: bool, a2m: bool):
     if get_rjid(dirpath.name):
         if w2f:
             wav_to_flac(dirpath)
         if w2m:
             wav_to_mp3(dirpath)
+        if a2m:
+            avi_to_mp4(dirpath)
         tag(dirpath)
         return
 
     for file in dirpath.iterdir():
         if not file.is_dir():
             continue
-        start(file, w2f, w2m)
+        start(file, w2f, w2m, a2m)
 
 
 def main():
@@ -34,11 +36,14 @@ def main():
     parser.add_argument(
         "-w2m", default=False, action=argparse.BooleanOptionalAction, help="transcode all wav files to mp3"
     )
+    parser.add_argument(
+        "-a2m", default=False, action=argparse.BooleanOptionalAction, help="transcode all avi files to mp4"
+    )
 
     args = parser.parse_args()
     path = Path(args.dirpath).absolute()
 
-    start(path, args.w2f, args.w2m)
+    start(path, args.w2f, args.w2m, args.a2m)
 
 
 if __name__ == "__main__":
