@@ -5,7 +5,7 @@ from typing import List, Optional
 
 from PIL.Image import Image
 from mutagen.flac import FLAC
-from mutagen.id3 import APIC, ID3, ID3NoHeaderError, TALB, TDRC, TPE1, TPE2, TPOS, TRCK
+from mutagen.id3 import APIC, ID3, ID3NoHeaderError, TALB, TDRC, TPE1, TPE2, TPOS, TRCK, TIT2
 from natsort import os_sorted
 
 from dvtag.utils import (
@@ -33,6 +33,7 @@ def tag_mp3s(mp3_paths: List[Path], dv: DoujinVoice, png_bytes_arr: BytesIO, dis
 
     for trck, p in enumerate(os_sorted(mp3_paths), start=1):
         tags.add(TRCK(text=[str(trck)]))
+        tags.add(TIT2(text=[p.stem]))
 
         try:
             if ID3(p) != tags:
@@ -55,6 +56,7 @@ def tag_flacs(files: List[Path], dv: DoujinVoice, image: Image, png_bytes_arr: B
         tags.add_picture(picture)
         tags["album"] = [dv.work_name]
         tags["tracknumber"] = [str(trck)]
+        tags["title"] = [file.stem]
         tags["artist"] = dv.seiyus
         tags["albumartist"] = [dv.circle]
         tags["date"] = [dv.sale_date]
