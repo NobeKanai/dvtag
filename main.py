@@ -2,7 +2,7 @@ import argparse
 import logging
 from pathlib import Path
 
-from dvtag import get_rjid, tag
+from dvtagcc import get_rjid, tag
 from utils import wav_to_flac, wav_to_mp3, avi_to_mp4
 
 logging.basicConfig(
