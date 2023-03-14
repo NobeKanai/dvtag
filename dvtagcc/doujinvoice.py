@@ -55,7 +55,7 @@ class DoujinVoice:
         rsp = session.get("https://www.dlsite.com/maniax/product/info/ajax?product_id=" + self.rjid)
 
         try:
-            json_data = rsp.json()[self.rjid]
+            json_data = rsp.json()[int(self.rjid)]
 
             self.dl_count = int(json_data["dl_count"])
             self.url = json_data["down_url"].replace("download/split", "work").replace("download", "work")
