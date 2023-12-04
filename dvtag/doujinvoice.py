@@ -80,7 +80,7 @@ class DoujinVoice:
 
             res = json.loads(session.get(chobit_api).text[9:-1])
 
-            self.work_image = res["works"][0]["thumb"]
+            self.work_image = res["works"][0]["thumb"].replace("media.dlsite.com/chobit", "file.chobit.cc", 1)
 
         except Exception as e:
             logging.warning(f"Cannot fetch cover from chobit for {self.rjid}: {e}")
