@@ -1,5 +1,6 @@
 import argparse
 import logging
+from importlib.metadata import version
 from pathlib import Path
 
 from dvtag import get_rjid, tag
@@ -26,7 +27,8 @@ def start(dirpath: Path, w2f: bool, w2m: bool):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Doujin Voice Tagging Tool (tagging in place)")
+    parser = argparse.ArgumentParser(prog="dvtag", description="Doujin Voice Tagging Tool (tagging in place)")
+    parser.add_argument("-v", "--version", action="version", version=version(parser.prog))
     parser.add_argument("dirpath", type=str, help="a required directory path")
     parser.add_argument(
         "-w2f", default=False, action=argparse.BooleanOptionalAction, help="transcode all wav files to flac [LOSELESS]"
