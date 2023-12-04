@@ -18,6 +18,7 @@ class DoujinVoice:
         self.work_image = ""
         self.seiyus = []
         self.circle = ""
+        self.genres = []
         self.sale_date = ""
 
         self._init_metadata()
@@ -44,6 +45,9 @@ class DoujinVoice:
 
         except AttributeError as e:
             logging.error("Cannot get circle from {}: {}".format(self.rjid, e))
+
+        pattern = r"work\.genre\">(.*)\</a>"
+        self.genres = [unescape(m[1]) for m in re.finditer(pattern, html)]
 
         # get sale date
         pattern = r"www\.dlsite\.com/maniax/new/=/year/([0-9]{4})/mon/([0-9]{2})/day/([0-9]{2})/"

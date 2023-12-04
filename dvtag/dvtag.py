@@ -5,7 +5,7 @@ from typing import List, Optional
 
 from PIL.Image import Image
 from mutagen.flac import FLAC
-from mutagen.id3 import APIC, ID3, ID3NoHeaderError, TALB, TDRC, TPE1, TPE2, TPOS, TRCK
+from mutagen.id3 import APIC, ID3, ID3NoHeaderError, TALB, TDRC, TPE1, TPE2, TPOS, TRCK, TCON
 from natsort import os_sorted
 
 from dvtag.utils import (
@@ -25,10 +25,12 @@ def tag_mp3s(mp3_paths: List[Path], dv: DoujinVoice, png_bytes_arr: BytesIO, dis
     tags.add(TALB(text=[dv.work_name]))
     tags.add(TPE2(text=[dv.circle]))
     tags.add(TDRC(text=[dv.sale_date]))
+    if dv.genres:
+        tags.add(TCON(text=[";".join(dv.genres)]))
     if disc_number:
         tags.add(TPOS(text=[str(disc_number)]))
     if dv.seiyus:
-        tags.add(TPE1(text=["/".join(dv.seiyus)]))
+        tags.add(TPE1(text=dv.seiyus))
     tags.add(APIC(mime="image/png", desc="Front Cover", data=png_bytes_arr.getvalue()))
 
     for trck, p in enumerate(os_sorted(mp3_paths), start=1):
@@ -58,6 +60,7 @@ def tag_flacs(files: List[Path], dv: DoujinVoice, image: Image, png_bytes_arr: B
         tags["artist"] = dv.seiyus
         tags["albumartist"] = [dv.circle]
         tags["date"] = [dv.sale_date]
+        tags["genre"] = dv.genres
         if disc:
             tags["discnumber"] = [str(disc)]
 
@@ -73,6 +76,7 @@ def tag(basepath: Path):
     logging.info(f"Circle: {dv.circle}")
     logging.info(f"Album:  {dv.work_name}")
     logging.info(f"Seiyu:  {','.join(dv.seiyus)}")
+    logging.info(f"Genre:  {','.join(dv.genres)}")
     logging.info(f"Date:   {dv.sale_date}")
 
     image = get_image(dv.work_image)
