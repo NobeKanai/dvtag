@@ -14,17 +14,19 @@ pip install dvtag
 
 ```
 $ dvtag -h
-usage: dvtag [-h] [-w2f] [-w2m] dirpath
+usage: dvtag [-h] [-v] [-w2f] [-w2m] dirpath
 
 Doujin Voice Tagging Tool (tagging in place)
 
 positional arguments:
-  dirpath     a required directory path
+  dirpath        a required directory path
 
 options:
-  -h, --help  show this help message and exit
-  -w2f        transcode all wav files to flac [LOSELESS] (default: False)
-  -w2m        transcode all wav files to mp3 (default: False)
+  -h, --help     show this help message and exit
+  -v, --version  show program's version number and exit
+  -w2f           transcode all wav files to flac [LOSELESS]
+  -w2m           transcode all wav files to mp3
+
 ```
 
 You must ensure that every doujin voice folder name contains a specific id format(in dlsite) - like `RJ123123`, `rj123123 xxx`, `xxxx RJ123123`
