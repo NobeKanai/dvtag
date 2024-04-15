@@ -92,9 +92,9 @@ def get_audio_paths_list(basepath: Path) -> Tuple[List[List[Path]], List[List[Pa
         mp3_paths = []
         flac_paths = []
         for file in files:
-            if file.name.endswith(".flac"):
+            if file.suffix.lower() == ".flac":
                 flac_paths.append(file)
-            elif file.name.endswith(".mp3"):
+            elif file.suffix.lower() == ".mp3":
                 mp3_paths.append(file)
 
         if len(flac_paths):
