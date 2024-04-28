@@ -1,8 +1,13 @@
 import logging
 import os
-from pathlib import Path
 import subprocess
+from pathlib import Path
 from typing import List
+
+__all__ = [
+    "wav_to_mp3",
+    "wav_to_flac",
+]
 
 
 def transcode_wav(dir: Path, format: str, options: List[str] = []):
@@ -15,7 +20,6 @@ def transcode_wav(dir: Path, format: str, options: List[str] = []):
             file_wav = os.path.join(dirpath, filename_wav)
             file_trans = os.path.join(dirpath, filename_trans)
             if os.path.exists(file_trans):
-                # this should not happen
                 logging.warning(f"{filename_trans} already exists.")
                 continue
 
