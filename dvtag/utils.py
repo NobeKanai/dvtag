@@ -9,7 +9,7 @@ from mutagen.flac import Picture
 from mutagen.id3 import PictureType
 from natsort import os_sort_key
 from PIL import Image
-from requests.adapters import HTTPAdapter
+from requests.adapters import HTTPAdapter, Retry
 
 __all__ = [
     "create_request_session",
@@ -130,7 +130,8 @@ def create_request_session(max_retries=5) -> requests.Session:
         requests.Session: Request session
     """
     session = requests.Session()
-    adapter = HTTPAdapter(max_retries=max_retries)
+    retries = Retry(total=max_retries, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
+    adapter = HTTPAdapter(max_retries=retries)
     session.mount("http://", adapter)
     session.mount("https://", adapter)
     return session

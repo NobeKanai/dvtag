@@ -18,9 +18,16 @@ class ParsingError(Exception):
         super().__init__(f"{message} for {workno}")
 
 
+def _get_200(url):
+    rsp = session.get(url)
+    if rsp.status_code != 200:
+        rsp.raise_for_status()
+    return rsp
+
+
 def scrape(workno: str) -> DoujinVoice:
     url = f"https://www.dlsite.com/maniax/work/=/product_id/{workno}.html"
-    html = session.get(url).text  # TODO check response code
+    html = _get_200(url).text
 
     if m := re.search(r'data-product-name="(.+)"\s*data-maker-name="(.+)"', html):
         name = m.group(1)
@@ -48,7 +55,7 @@ def scrape(workno: str) -> DoujinVoice:
 
     # try extracting more accurate information from chobit
     chobit_api = f"https://chobit.cc/api/v1/dlsite/embed?workno={workno}"
-    res = session.get(chobit_api).text
+    res = _get_200(chobit_api).text
 
     try:
         data = json.loads(res[9:-1])

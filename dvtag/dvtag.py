@@ -9,7 +9,7 @@ from natsort import os_sorted
 from PIL.Image import Image
 
 from .doujinvoice import DoujinVoice
-from .scrape import scrape
+from .scrape import scrape, ParsingError
 from .utils import extract_titles, get_audio_paths_list, get_image, get_picture, get_png_byte_arr
 
 __all__ = ["tag"]
@@ -80,7 +80,14 @@ def tag(basepath: Path, workno: str):
     if not flac_paths_list and not mp3_paths_list:
         return
 
-    dv = scrape(workno)
+    try:
+        dv = scrape(workno)
+    except ParsingError:
+        raise
+    except Exception as e:
+        logging.exception(f"An error occurred during scraping metadata for {workno}: {e}.")
+        return
+
     logging.info(f"[{workno}] Ready to tag...")
     logging.info(f" Circle: {dv.circle}")
     logging.info(f" Album:  {dv.name}")
