@@ -1,13 +1,39 @@
 # DVTAG
 
-A tool for tagging your doujin voice library.
+A command-line tool designed to tag your doujin voice library.
+
+## How DVTAG Works
+
+DVTAG operates by recursively searching the directory specified by the user. This directory can be a relative path, or even the current directory. It looks for all directories that have a work number in their names.
+
+A work number is a unique identifier from the product link on dlsite, in the format of `RJxxxxxx`, `BJxxxxxx`, or `VJxxxxxx`, where `xxxxxx` can be either 6 or 8 digits.
+
+For every supported audio file format found inside each of these directories, DVTAG uses the corresponding work number to fetch metadata from the web. It then tags the audio files with this metadata.
 
 ## Installation
 
-*Require Python>=3.9*
+DVTAG requires Python 3.9 or higher. You can install it using pip or pipx:
 
 ```bash
 pip install dvtag
+```
+
+or 
+
+```bash
+pipx install dvtag
+```
+
+To upgrade DVTAG, use:
+
+```bash
+pip install --upgrade dvtag
+```
+
+or
+
+```bash
+pipx upgrade dvtag
 ```
 
 ## Usage
@@ -29,36 +55,20 @@ options:
 
 ```
 
-You must ensure that every doujin voice folder name contains a specific id format(in dlsite) - like `RJ123123`, `rj123123 xxx`, `xxxx RJ123123`
+Please ensure that every doujin voice folder name contains a specific work number format - like `RJ123123`, `rj123123 xxx`, `xxxx RJ01123123`, `BJ01123123`, `VJ123123`, etc.
 
-```
-├── EXcute
-│   ├── RJ321580
-│   └── RJ328009
-│
-├── Kaleidoscope
-│   └── RJ329141
-│
-├── PINK PUNK PRO
-│   └── RJ321217
-│
-├── plug in.XX
-│   ├── [RJ310972][XXXxx][plug in.XX]
-│   └── RJ341111
-│
-├── ReApple
-│   ├── [RJ263247]
-│   └── RJ301616
-```
-
-Then tagging with command `dvtag`:
+To tag your library, use the `dvtag` command:
 
 ```bash
 dvtag /path/to/your/library
 ```
 
-If you have `wav` audio files and you want to convert these all to `flac`/`mp3`, run with option `-w2f`/`-w2m`. For example
+## Transcoding
+
+Transcoding is an additional functionality of DVTAG. If you have `wav` audio files and you want to convert these all to `flac` or `mp3`, run with option `-w2f` or `-w2m`. For example:
 
 ```bash
 dvtag -w2f /path/to/your/library
 ```
+
+Please note that transcoding depends on ffmpeg and users seeking additional related features should use the ffmpeg tool directly.
