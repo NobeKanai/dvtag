@@ -6,9 +6,7 @@ from pathlib import Path
 from dvtag import get_workno, tag
 from utils import wav_to_flac, wav_to_mp3
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %a %H:%M:%S"
-)
+logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
 def start(dirpath: Path, w2f: bool, w2m: bool):

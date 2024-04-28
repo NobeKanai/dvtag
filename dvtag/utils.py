@@ -13,6 +13,7 @@ from requests.adapters import HTTPAdapter
 
 __all__ = [
     "create_request_session",
+    "extract_titles",
     "get_audio_paths_list",
     "get_image",
     "get_picture",
@@ -133,3 +134,46 @@ def create_request_session(max_retries=5) -> requests.Session:
     session.mount("http://", adapter)
     session.mount("https://", adapter)
     return session
+
+
+_title_pat = re.compile(
+    r"^(#|■|◆|【|\(|(?:【?tr(?:ack)?|トラック|音轨|とらっく)[\-_‗\s\.．・,：]*)?([\d]+)([\-_‗\s\.．・,：】\)]+|(?=[「『【]))(.+)",
+    re.IGNORECASE,
+)
+
+
+def extract_titles(sorted_stems: List[str]) -> List[str]:
+    if len(sorted_stems) <= 1:
+        return sorted_stems
+
+    if (m := _title_pat.match(sorted_stems[0])) is None:
+        return sorted_stems
+
+    pref: str | None = m.group(1)
+    suff: str = m.group(3)
+    diff: int = int(m.group(2))
+
+    if pref:
+        if pref == "【" and not suff.startswith("】"):
+            return sorted_stems
+        if pref == "(" and not suff.startswith(")"):
+            return sorted_stems
+
+    extracted: List[str] = [m.group(4)]
+
+    for i in range(1, len(sorted_stems)):
+        m = _title_pat.match(sorted_stems[i])
+        if not m:
+            return sorted_stems
+
+        if m.group(1) != pref or m.group(3) != suff:
+            return sorted_stems
+        if int(m.group(2)) - i != diff:
+            return sorted_stems
+
+        if (title := m.group(4)) in extracted:
+            return sorted_stems
+
+        extracted.append(title)
+
+    return extracted

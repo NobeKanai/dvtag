@@ -4,18 +4,13 @@ from pathlib import Path
 from typing import List, Optional
 
 from mutagen.flac import FLAC
-from mutagen.id3 import APIC, ID3, TALB, TCON, TDRC, TPE1, TPE2, TPOS, TRCK, ID3NoHeaderError
+from mutagen.id3 import APIC, ID3, TALB, TCON, TDRC, TIT2, TPE1, TPE2, TPOS, TRCK, ID3NoHeaderError
 from natsort import os_sorted
 from PIL.Image import Image
 
 from .doujinvoice import DoujinVoice
 from .scrape import scrape
-from .utils import (
-    get_audio_paths_list,
-    get_image,
-    get_picture,
-    get_png_byte_arr,
-)
+from .utils import extract_titles, get_audio_paths_list, get_image, get_picture, get_png_byte_arr
 
 __all__ = ["tag"]
 
@@ -34,32 +29,40 @@ def tag_mp3s(mp3_paths: List[Path], dv: DoujinVoice, png_bytes_arr: BytesIO, dis
         tags.add(TPE1(text=dv.seiyus))
     tags.add(APIC(mime="image/png", desc="Front Cover", data=png_bytes_arr.getvalue()))
 
-    for trck, p in enumerate(os_sorted(mp3_paths), start=1):
+    sorted = list(os_sorted(mp3_paths))
+    titles = extract_titles(sorted_stems=[f.stem for f in sorted])
+
+    for trck, title, p in zip(range(1, len(sorted) + 1), titles, sorted):
+        tags.add(TIT2(text=[title]))
         tags.add(TRCK(text=[str(trck)]))
 
         try:
             if ID3(p) != tags:
                 tags.save(p, v1=0)
-                logging.info(f"Tagged <track: {trck}, disc: {disc_number}> to '{p.name}'")
+                logging.info(f"Tagged <track: {trck}, disc: {disc_number}, title: '{title}'> to '{p.name}'")
         except ID3NoHeaderError:
             tags.save(p, v1=0)
-            logging.info(f"Tagged <track: {trck}, disc: {disc_number}> to '{p.name}'")
+            logging.info(f"Tagged <track: {trck}, disc: {disc_number}, title: '{title}'> to '{p.name}'")
         tags.delall("TRCK")
 
 
 def tag_flacs(files: List[Path], dv: DoujinVoice, image: Image, png_bytes_arr: BytesIO, disc: Optional[int]):
     picture = get_picture(png_bytes_arr, image.width, image.height, image.mode)
 
-    for trck, file in enumerate(os_sorted(files), start=1):
-        tags = FLAC(file)
+    sorted = list(os_sorted(files))
+    titles = extract_titles(sorted_stems=[f.stem for f in sorted])
+
+    for trck, title, p in zip(range(1, len(sorted) + 1), titles, sorted):
+        tags = FLAC(p)
         tags.clear()
         tags.clear_pictures()
 
         tags.add_picture(picture)
         tags["album"] = [dv.name]
-        tags["tracknumber"] = [str(trck)]
         tags["albumartist"] = [dv.circle]
         tags["date"] = [dv.sale_date]
+        tags["title"] = [title]
+        tags["tracknumber"] = [str(trck)]
         if dv.genres:
             tags["genre"] = dv.genres
         if dv.seiyus:
@@ -67,9 +70,9 @@ def tag_flacs(files: List[Path], dv: DoujinVoice, image: Image, png_bytes_arr: B
         if disc:
             tags["discnumber"] = [str(disc)]
 
-        if tags != FLAC(file):
-            tags.save(file)
-            logging.info(f"Tagged <track: {trck}, disc: {disc}> to '{file.name}'")
+        if tags != FLAC(p):
+            tags.save(p)
+            logging.info(f"Tagged <track: {trck}, disc: {disc}>, title: '{title}'>  to '{p.name}'")
 
 
 def tag(basepath: Path, workno: str):
@@ -79,11 +82,11 @@ def tag(basepath: Path, workno: str):
 
     dv = scrape(workno)
     logging.info(f"[{workno}] Ready to tag...")
-    logging.info(f"Circle: {dv.circle}")
-    logging.info(f"Album:  {dv.name}")
-    logging.info(f"Seiyu:  {','.join(dv.seiyus)}")
-    logging.info(f"Genre:  {','.join(dv.genres)}")
-    logging.info(f"Date:   {dv.sale_date}")
+    logging.info(f" Circle: {dv.circle}")
+    logging.info(f" Album:  {dv.name}")
+    logging.info(f" Seiyu:  {','.join(dv.seiyus)}")
+    logging.info(f" Genre:  {','.join(dv.genres)}")
+    logging.info(f" Date:   {dv.sale_date}")
 
     image = get_image(dv.image_url)
     png_bytes_arr = get_png_byte_arr(image)
