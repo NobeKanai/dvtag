@@ -1,3 +1,8 @@
+"""This module provides a minimal implementation of some functions for transcoding `.wav` files to other formats using `ffmpeg`.
+
+If users need more flexible encoding options or advanced features(like parallel transcoding), we recommend directly using `ffmpeg` or a more feature-rich library.
+"""
+
 import logging
 import os
 import subprocess
