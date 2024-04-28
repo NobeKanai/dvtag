@@ -1,14 +1,14 @@
 import io
+import re
 from io import BytesIO
 from pathlib import Path
-import re
 from typing import List, Optional, Tuple
 
-from PIL import Image
+import requests
 from mutagen.flac import Picture
 from mutagen.id3 import PictureType
 from natsort import os_sort_key
-import requests
+from PIL import Image
 from requests.adapters import HTTPAdapter
 
 __all__ = [
@@ -23,55 +23,9 @@ __all__ = [
 workno_pat = re.compile(r"(R|B|V)J\d{6}(\d\d)?", flags=re.IGNORECASE)
 
 
-def _split(audio_files: List[Path]) -> List[List[Path]]:
-    regexes = [
-        r"^omake_?.*[0-9]{1,2}.*$",
-        r"^.*ex[0-9]{1,2}.*$",
-        r"^ex_.+$",
-        r"^後日談.*$",
-        r"^おまけ_?[0-9]{0,2}.*$",
-        r"^反転おまけ_?[0-9]{1,2}.*$",
-        r"^反転_?[0-9]{1,2}.*$",
-        r"^20..年?[0-9]{1,2}月配信.*$",
-        r"^.*特典.*$",
-        r"^追加[0-9]{1,2}.*$",
-        r"^opt[0-9]?.*",
-        r"^#[0-9]+(-|ー)B",
-        r"^#[0-9]+(-|ー)C",
-        r"^ASMR_.*",
-        r"^.+Bパート",
-        r"^番外編",
-    ]  # Regular expressions must keep no collision with each other
-
-    results = {}
-    paths = []
-    regular = []
-    for audio_file in audio_files:
-        matched = False
-        for regex_expr in regexes:
-            if re.match(regex_expr, audio_file.stem, re.IGNORECASE):
-                matched = True
-                if results.get(regex_expr):
-                    results[regex_expr].append(audio_file)
-                else:
-                    results[regex_expr] = [audio_file]
-                break
-
-        if not matched:
-            regular.append(audio_file)
-
-    if len(regular):
-        paths.append(regular)
-
-    for _, v in results.items():
-        paths.append(v)
-
-    return paths
-
-
 def _walk(basepath: Path):
-    dirs = []
-    files = []
+    dirs: List[Path] = []
+    files: List[Path] = []
     for file in basepath.iterdir():
         if file.is_dir():
             dirs.append(file)
@@ -94,12 +48,12 @@ def get_audio_paths_list(basepath: Path) -> Tuple[List[List[Path]], List[List[Pa
     Returns:
         Tuple[List[List[Path]], List[List[Path]]]: flac paths list, mp3 paths list
     """
-    flac_paths_list = []
-    mp3_paths_list = []
+    flac_paths_list: List[List[Path]] = []
+    mp3_paths_list: List[List[Path]] = []
 
     for files in _walk(basepath):
-        mp3_paths = []
-        flac_paths = []
+        mp3_paths: List[Path] = []
+        flac_paths: List[Path] = []
         for file in files:
             if file.suffix.lower() == ".flac":
                 flac_paths.append(file)
@@ -107,9 +61,9 @@ def get_audio_paths_list(basepath: Path) -> Tuple[List[List[Path]], List[List[Pa
                 mp3_paths.append(file)
 
         if len(flac_paths):
-            flac_paths_list.extend(_split(flac_paths))
+            flac_paths_list.append(flac_paths)
         if len(mp3_paths):
-            mp3_paths_list.extend(_split(mp3_paths))
+            mp3_paths_list.append(mp3_paths)
 
     return flac_paths_list, mp3_paths_list
 
