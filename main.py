@@ -3,7 +3,7 @@ import logging
 from importlib.metadata import version
 from pathlib import Path
 
-from dvtag import get_rjid, tag
+from dvtag import get_workno, tag
 from utils import wav_to_flac, wav_to_mp3
 
 logging.basicConfig(
@@ -12,12 +12,12 @@ logging.basicConfig(
 
 
 def start(dirpath: Path, w2f: bool, w2m: bool):
-    if get_rjid(dirpath.name):
+    if workno := get_workno(dirpath.name):
         if w2f:
             wav_to_flac(dirpath)
         if w2m:
             wav_to_mp3(dirpath)
-        tag(dirpath)
+        tag(dirpath, workno)
         return
 
     for file in dirpath.iterdir():

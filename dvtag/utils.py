@@ -11,7 +11,16 @@ from natsort import os_sort_key
 import requests
 from requests.adapters import HTTPAdapter
 
-rjid_pat = re.compile(r"RJ\d{6}(\d\d)?", flags=re.IGNORECASE)
+__all__ = [
+    "create_request_session",
+    "get_audio_paths_list",
+    "get_image",
+    "get_picture",
+    "get_png_byte_arr",
+    "get_workno",
+]
+
+workno_pat = re.compile(r"(R|B|V)J\d{6}(\d\d)?", flags=re.IGNORECASE)
 
 
 def _split(audio_files: List[Path]) -> List[List[Path]]:
@@ -105,8 +114,8 @@ def get_audio_paths_list(basepath: Path) -> Tuple[List[List[Path]], List[List[Pa
     return flac_paths_list, mp3_paths_list
 
 
-def get_rjid(name: str) -> Optional[str]:
-    """Gets rjid(or rather, rj code) from a given string
+def get_workno(name: str) -> Optional[str]:
+    """Gets workno(of dlsite) from a given string
 
     Args:
         name (str): A string
@@ -114,7 +123,7 @@ def get_rjid(name: str) -> Optional[str]:
     Returns:
         Optional[str]: Returns a string(upper case, like RJ123123) if found, otherwise return None
     """
-    m = rjid_pat.search(name)
+    m = workno_pat.search(name)
     if m:
         return m.group().upper()
     return None
