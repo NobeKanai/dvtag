@@ -1,6 +1,7 @@
 import json
 import re
 from html import unescape
+from urllib.parse import urljoin
 
 from .doujinvoice import DoujinVoice
 from .utils import create_request_session
@@ -36,7 +37,7 @@ def scrape(workno: str) -> DoujinVoice:
         raise ParsingError(f"no work name found", workno)
 
     if m := re.search(r"\"og:image\"[\s\S]*?content=\"(.+?)\"", html):
-        image_url = m.group(1)
+        image_url = urljoin("https://www.dlsite.com", m.group(1))
     else:
         raise ParsingError(f"no cover image url found", workno)
 
