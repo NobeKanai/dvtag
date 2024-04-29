@@ -31,13 +31,13 @@ def scrape(workno: str) -> DoujinVoice:
     html = _get_200(url).text
 
     if m := re.search(r'data-product-name="(.+)"\s*data-maker-name="(.+)"', html):
-        name = m.group(1)
-        circle = m.group(2)
+        name = unescape(m.group(1))
+        circle = unescape(m.group(2))
     else:
         raise ParsingError(f"no work name found", workno)
 
     if m := re.search(r"\"og:image\"[\s\S]*?content=\"(.+?)\"", html):
-        image_url = urljoin("https://www.dlsite.com", m.group(1))
+        image_url = urljoin("https://www.dlsite.com", unescape(m.group(1)))
     else:
         raise ParsingError(f"no cover image url found", workno)
 
