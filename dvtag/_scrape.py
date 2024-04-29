@@ -1,14 +1,18 @@
+__all__ = [
+    "ParsingError",
+    "scrape",
+]
+
+
 import json
 import re
 from html import unescape
 from urllib.parse import urljoin
 
-from .doujinvoice import DoujinVoice
-from .utils import create_request_session
+from ._doujin_voice import DoujinVoice
+from ._utils import create_request_session
 
-session = create_request_session()
-
-__all__ = ["scrape", "ParsingError"]
+_session = create_request_session()
 
 
 class ParsingError(Exception):
@@ -20,7 +24,7 @@ class ParsingError(Exception):
 
 
 def _get_200(url):
-    rsp = session.get(url)
+    rsp = _session.get(url)
     if rsp.status_code != 200:
         rsp.raise_for_status()
     return rsp
@@ -54,7 +58,7 @@ def scrape(workno: str) -> DoujinVoice:
     else:
         raise ParsingError(f"no sale date found", workno)
 
-    # try extracting more accurate information from chobit
+    # Try extracting more accurate information from chobit
     chobit_api = f"https://chobit.cc/api/v1/dlsite/embed?workno={workno}"
     res = _get_200(chobit_api).text
 
@@ -65,7 +69,7 @@ def scrape(workno: str) -> DoujinVoice:
             if work["file_type"] == "audio":
                 image_url = work["thumb"].replace("media.dlsite.com/chobit", "file.chobit.cc", 1)
 
-            # we may get a shorter, yet more accurate article title (with no promotion)
+            # We may get a shorter, yet more accurate article title (with no promotion)
             if work["work_name"] in name:
                 name = work["work_name"]
 

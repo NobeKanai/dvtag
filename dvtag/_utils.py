@@ -1,3 +1,13 @@
+__all__ = [
+    "create_request_session",
+    "extract_titles",
+    "get_audio_paths_list",
+    "get_image",
+    "get_picture",
+    "get_png_byte_arr",
+    "get_workno",
+]
+
 import io
 import re
 from io import BytesIO
@@ -11,17 +21,7 @@ from natsort import os_sort_key
 from PIL import Image
 from requests.adapters import HTTPAdapter, Retry
 
-__all__ = [
-    "create_request_session",
-    "extract_titles",
-    "get_audio_paths_list",
-    "get_image",
-    "get_picture",
-    "get_png_byte_arr",
-    "get_workno",
-]
-
-workno_pat = re.compile(r"(R|B|V)J\d{6}(\d\d)?", flags=re.IGNORECASE)
+_workno_pat = re.compile(r"(R|B|V)J\d{6}(\d\d)?", flags=re.IGNORECASE)
 
 
 def _walk(basepath: Path):
@@ -84,7 +84,7 @@ def get_workno(name: str) -> Optional[str]:
     Returns:
         Optional[str]: Returns a string(upper case, like RJ123123) if found, otherwise return None
     """
-    m = workno_pat.search(name)
+    m = _workno_pat.search(name)
     if m:
         return m.group().upper()
     return None
@@ -95,7 +95,7 @@ def get_image(url: str) -> Image.Image:
     return Image.open(cover_path)
 
 
-png_modes_to_bpp = {
+_png_modes_to_bpp = {
     "1": 1,
     "L": 8,
     "P": 8,
@@ -106,7 +106,7 @@ png_modes_to_bpp = {
 
 
 def get_png_byte_arr(im: Image.Image) -> BytesIO:
-    if im.mode not in png_modes_to_bpp:
+    if im.mode not in _png_modes_to_bpp:
         im = im.convert("RGB" if im.info.get("transparency") is None else "RGBA")
     img_byte_arr = io.BytesIO()
     im.save(img_byte_arr, "png")
@@ -120,7 +120,7 @@ def get_picture(png_byte_arr: BytesIO, width: int, height: int, mode: str) -> Pi
     picture.height = height
     picture.type = PictureType.COVER_FRONT
 
-    picture.depth = png_modes_to_bpp[mode]
+    picture.depth = _png_modes_to_bpp[mode]
     picture.data = png_byte_arr.getvalue()
 
     return picture

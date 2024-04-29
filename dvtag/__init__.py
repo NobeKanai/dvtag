@@ -1,7 +1,7 @@
-from .dvtag import tag
-from .utils import get_workno
-
 __all__ = [
-    "tag",
     "get_workno",
+    "tag",
 ]
+
+from ._dvtag import tag
+from ._utils import get_workno

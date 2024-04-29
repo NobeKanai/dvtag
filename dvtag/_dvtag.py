@@ -1,3 +1,8 @@
+__all__ = [
+    "tag",
+]
+
+
 import logging
 from io import BytesIO
 from pathlib import Path
@@ -9,11 +14,9 @@ from mutagen.mp4 import MP4, MP4Cover
 from natsort import os_sorted
 from PIL.Image import Image
 
-from .doujinvoice import DoujinVoice
-from .scrape import ParsingError, scrape
-from .utils import extract_titles, get_audio_paths_list, get_image, get_picture, get_png_byte_arr
-
-__all__ = ["tag"]
+from ._doujin_voice import DoujinVoice
+from ._scrape import ParsingError, scrape
+from ._utils import extract_titles, get_audio_paths_list, get_image, get_picture, get_png_byte_arr
 
 
 def tag_mp3s(mp3_paths: List[Path], dv: DoujinVoice, png_bytes_arr: BytesIO, disc_number: Optional[int]):
@@ -44,7 +47,6 @@ def tag_mp3s(mp3_paths: List[Path], dv: DoujinVoice, png_bytes_arr: BytesIO, dis
         except ID3NoHeaderError:
             tags.save(p, v1=0)
             logging.info(f"Tagged <track: {trck}, disc: {disc_number}, title: '{title}'> to '{p.name}'")
-        tags.delall("TRCK")
 
 
 def tag_mp4s(files: List[Path], dv: DoujinVoice, png_bytes_arr: BytesIO, disc: Optional[int]):

@@ -3,16 +3,16 @@
 If users need more flexible encoding options or advanced features(like parallel transcoding), we recommend directly using `ffmpeg` or a more feature-rich library.
 """
 
+__all__ = [
+    "wav_to_flac",
+    "wav_to_mp3",
+]
+
 import logging
 import os
 import subprocess
 from pathlib import Path
 from typing import List
-
-__all__ = [
-    "wav_to_mp3",
-    "wav_to_flac",
-]
 
 
 def transcode_wav(dir: Path, format: str, options: List[str] = []):
