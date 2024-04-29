@@ -60,8 +60,11 @@ def scrape(workno: str) -> DoujinVoice:
 
     try:
         data = json.loads(res[9:-1])
-        if data["count"] and (work := data["works"][0])["file_type"] == "audio":
-            image_url = work["thumb"].replace("media.dlsite.com/chobit", "file.chobit.cc", 1)
+        if data["count"]:
+            work = data["works"][0]
+            if work["file_type"] == "audio":
+                image_url = work["thumb"].replace("media.dlsite.com/chobit", "file.chobit.cc", 1)
+
             # we may get a shorter, yet more accurate article title (with no promotion)
             if work["work_name"] in name:
                 name = work["work_name"]
