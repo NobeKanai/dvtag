@@ -4,7 +4,7 @@ from importlib.metadata import version
 from pathlib import Path
 
 from dvtag import get_workno, tag
-from utils import wav_to_flac, wav_to_mp3
+from transcode import wav_to_flac, wav_to_mp3
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
