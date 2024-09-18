@@ -40,9 +40,11 @@ def transcode_wav(dir: Path, format: str, options: List[str] = []):
                 logging.fatal(f"Failed to transcode {filename_wav} to {format}. Check your ffmpeg")
 
 
-def wav_to_flac(dir: Path):
-    transcode_wav(dir, "flac")
+def wav_to_flac(dir: Path, compression_level: int):
+    options = ["-compression_level", str(compression_level), "-bitexact", "-map", "0:a", "-map_metadata", "-1"]
+    transcode_wav(dir, "flac", options)
 
 
 def wav_to_mp3(dir: Path):
-    transcode_wav(dir, "mp3", ["-b:a", "320k"])
+    options = ["-b:a", "320k", "-bitexact", "-map", "0:a", "-map_metadata", "-1"]
+    transcode_wav(dir, "mp3", options)

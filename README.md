@@ -40,7 +40,7 @@ pipx upgrade dvtag
 
 ```
 $ dvtag -h
-usage: dvtag [-h] [-v] [-w2f] [-w2m] dirpath
+usage: dvtag [-h] [-v] [-w2f] [-w2m] [-c] dirpath
 
 Doujin Voice Tagging Tool (tagging in place)
 
@@ -52,6 +52,7 @@ options:
   -v, --version  show program's version number and exit
   -w2f           transcode all wav files to flac [LOSELESS]
   -w2m           transcode all wav files to mp3
+  -c             compression level for flac encoding
 
 ```
 
