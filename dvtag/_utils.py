@@ -23,6 +23,9 @@ from requests.adapters import HTTPAdapter, Retry
 
 _workno_pat = re.compile(r"(R|B|V)J\d{6}(\d\d)?", flags=re.IGNORECASE)
 
+_low_rx = re.compile(r"特典")
+_high_rx = re.compile(r"本編")
+
 
 def _walk(basepath: Path):
     dirs: List[Path] = []
@@ -34,7 +37,19 @@ def _walk(basepath: Path):
             files.append(file)
     yield files
 
-    dirs = sorted(dirs, key=lambda d: os_sort_key(d.name))
+    def sort_key(d):
+        name = d.name
+        if _high_rx.search(name):
+            priority = 0
+        elif _low_rx.search(name):
+            priority = 2
+        else:
+            priority = 1
+
+        base = os_sort_key(name)
+        return (priority, base)
+
+    dirs = sorted(dirs, key=sort_key)
     for d in dirs:
         for f in _walk(d):
             yield f
