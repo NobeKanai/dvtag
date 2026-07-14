@@ -34,6 +34,9 @@ def scrape(workno: str) -> DoujinVoice:
     url = f"https://www.dlsite.com/maniax/work/=/product_id/{workno}.html"
     html = _get_200(url).text
 
+    if m := re.search(r'class="error_box error_box_work"[\s\S]*?class="title_text">\s*(.+?)\s*</p>', html):
+        raise ParsingError(unescape(m.group(1)), workno)
+
     if m := re.search(r'data-product-name="(.+)"\s*data-maker-name="(.+)"', html):
         name = unescape(m.group(1))
         circle = unescape(m.group(2))
@@ -63,7 +66,7 @@ def scrape(workno: str) -> DoujinVoice:
     res = _get_200(chobit_api).text
 
     try:
-        data = json.loads(res[9:-1])
+        data = json.loads(res)
         if data["count"]:
             work = data["works"][0]
             if work["file_type"] == "audio":
